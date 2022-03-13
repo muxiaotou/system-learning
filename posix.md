@@ -1,3 +1,6 @@
+    https://blog.csdn.net/wang_hufeng/article/details/52317787  
+    https://mp.weixin.qq.com/s?__biz=Mzg3NTU3OTgxOA==&mid=2247489085&idx=1&sn=1eb51ea0a00a00a7a62f232221bafaf8&chksm=cf3e06f8f8498fee063670f21bd0a756ef821e359709ed62720b48927ad18eeb0757399036a8&cur_album_id=1778430570125967361&scene=190#rd
+
     应用程序通过应用编程接口(API)而不是直接通过系统调用来编程。一个API定义了一组应用程序使用的编程接口，即可以实现一个系统调用，
     也可以通过调用多个系统调用来实现。
 
@@ -22,3 +25,7 @@
     printf scanf fopen fclose 等，需要包含stdio.h stdlib.h等头文件
 
     库函数时语言本身的一部分，系统调用时内核提供给应用程序的接口，属于系统的一部分。
+
+    库函数和系统调用区别：
+    系统调用是各个系统实现的，因此各个系统的系统调用是不同的，而比如c语言的库函数在各个系统是相同的，库函数是夸平台的，库函数的存在也是为了免除使用
+    应用程序直接使用系统调用带来的跨平台差异
