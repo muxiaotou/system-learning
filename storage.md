@@ -92,5 +92,9 @@
 
     cp：上面以及描述过了，核心就是--sparse 稀疏  参数，默认时auto，即跳过空洞但不跳过零；always跳过稀疏和零，never是既不跳过稀疏，也不跳过零
     
-    
-    
+    #https://mp.weixin.qq.com/s?__biz=Mzg3NTU3OTgxOA==&mid=2247489977&idx=1&sn=49c626c57839bee7f90c5fa1646e6ea3&chksm=cf3e097cf849806ae597a9e762a83d6b5d887a3bafae934a75df570f8fe10b886c63a0889c76&scene=178&cur_album_id=1778430570125967361#rd
+    磁盘IO为什么总叫你对齐？
+    机械硬盘IO要扇区对齐，绝大多数扇区是512byte，磁盘的读写最小单元是扇区；
+    ssd盘的IO要4K对齐，ssd盘的读写单元是page，一个page大小是4K。
+    机械盘update步骤：先从盘上读取数据到内存，然后update，再协会到磁盘对应位置；
+    ssd盘update步骤：无法覆盖写，每次都是些新的位置，旧的位置作为垃圾等待后台GC。
