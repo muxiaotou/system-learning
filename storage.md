@@ -1,4 +1,6 @@
     大多来源于”奇犽云存储“公众号，“存储技术”相关文章
+    还有“小林coding”公众号里面这篇文章：https://mp.weixin.qq.com/s/qJdoXTv_XS_4ts9YuzMNIw
+    对整个文件系统的IO相关都做了系统性的阐述
     
     #https://mp.weixin.qq.com/s?__biz=Mzg3NTU3OTgxOA==&mid=2247489085&idx=1&sn=1eb51ea0a00a00a7a62f232221bafaf8&chksm=cf3e06f8f8498fee063670f21bd0a756ef821e359709ed62720b48927ad18eeb0757399036a8&cur_album_id=1778430570125967361&scene=190#rd
     文件的读写核心：
@@ -98,3 +100,23 @@
     ssd盘的IO要4K对齐，ssd盘的读写单元是page，一个page大小是4K。
     机械盘update步骤：先从盘上读取数据到内存，然后update，再协会到磁盘对应位置；
     ssd盘update步骤：无法覆盖写，每次都是些新的位置，旧的位置作为垃圾等待后台GC。
+
+    #https://mp.weixin.qq.com/s?__biz=Mzg3NTU3OTgxOA==&mid=2247490914&idx=1&sn=ba8eb5f875742815997f8b9f193e9120&chksm=cf3e0da7f84984b1823db102616e9bc83d06917f765f0796e98c63d732e2b2255f72f9083cfd&scene=178&cur_album_id=1778430570125967361#rd
+    df -Tha T显示文件系统type，h以比较友好的方式
+    /etc/fstab 可以指定设备名、label、UUID进行挂载
+    /lib/modules/3.10.0-957.el7.x86_64/kernel/fs 内可以看到操作系统支持的文件系统
+    文件系统位于内核中，vfs之下，块设备之上，的位置。对外呈现文件存储实现，对内管理裸块设备。用户态程序可以debug，但是内核态程序出现问题就宕机，
+    所有现场都丢失，只能通过日志等方式来排查，且内核态的编程要比用户态谨慎的多，因此内核态程序难点在于调试和排障。
+    因此要实现一个文件系统，内核开发者提供了一个fuse机制，即把IO路径导向用户态，由用户态捕获到IO，从而实现文件存储。
+
+    #https://mp.weixin.qq.com/s?__biz=Mzg3NTU3OTgxOA==&mid=2247491049&idx=1&sn=9c2558f660c2b09333aa02b8e5127a75&chksm=cf3e0d2cf849843abb5b79480117a0e03e194c6e4a9a28ad6b856a51140230829415c8eab8f0&cur_album_id=1778430570125967361&scene=189#wechat_redirect    
+    FUSE是什么？    
+    FUSE是一个用来实现用户态文件系统的框架，这个框架包含三个组件：
+    1）fuse.ko 内核模块，用来接受vfs传递下来的IO请求，并且把这个IO封装后发送到用户态；
+    2）libfuse,用户态lib库，解析fuse内核态发送过来的协议包，拆分成常规的IO请求；【文件系统用户态程序使用，用来解析、封装、运输fuse协议包】
+    3）fusermount，mount工具
+    以上三个组件完成了一件事情：让IO在内核态和用户态直接来回自由穿梭
+    大体流程是，用户对文件系统mountpoint的IO请求，先进入内核，经vfs传递给内核fuse文件系统模块，内核fuse模块把请求发给到用户态程序(用户自己实现的
+    用户态文件系统程序)，处理完响应后再原路返回。实际内核fuse模块不是将请求发给用户态程序，而是写入/dev/fuse的虚设备文件，然后用户态程序包含的libfuse有
+    个daemon程序监听/dev/fuse，看到有请求写入就立马读出来进行处理。
+    那内核模块无法直接和用户态程序交互，需要一个桥梁，
